@@ -162,7 +162,7 @@ if len(sys.argv) == 3:
         print(f"Saved score to {output_file}")
 if len(sys.argv) == 4:
     if sys.argv[3] == '-p' or sys.argv[3] == '--play':
-        play_midi(score)
+      play_midi(score)
     
 
         

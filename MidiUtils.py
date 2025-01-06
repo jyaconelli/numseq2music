@@ -12,12 +12,14 @@ def make_midi(score: Score, filename="output.midi"):
     name = score.name
     tempo = score.tempo
     
-    mf = MIDIFile(1)
-    track = 0
+    mf = MIDIFile(numTracks=2, deinterleave=False)
+    melody_track = 0
+    chord_track = 1
     time = 0
     
-    mf.addTrackName(track, time, name)
-    mf.addTempo(track, time, tempo)
+    mf.addTrackName(melody_track, time, "melody")
+    mf.addTrackName(chord_track, time, "chords")
+    mf.addTempo(melody_track, time, tempo)
 
     channel = 0
     volume = 80 
@@ -27,7 +29,7 @@ def make_midi(score: Score, filename="output.midi"):
         if not moment.note.rest:
             pitch = moment.note.midi
             duration = moment.duration / (BEATS_PER_ROW / divisor) # BEATS_PER_ROW is 1 measure, assuming 4/4, we want one beat = 1/4*measure
-            mf.addNote(track, channel, pitch, time, duration, volume)
+            mf.addNote(melody_track, channel, pitch, time, duration, volume)
         time += duration
 
     # write chords
@@ -44,10 +46,14 @@ def make_midi(score: Score, filename="output.midi"):
             min_midi_val = midi_note
             if midi_note < 48: # arbitrary cut off because some chords were way too low. TODO: make configurable
                 midi_note += 12
-            mf.addNote(track, channel, midi_note - 24, time, duration, volume) # do chords 2 octaves lower
+            mf.addNote(chord_track, channel, midi_note - 24, time, duration, volume) # do chords 2 octaves lower
         time += duration
     with open(filename, 'wb') as outf:
+      try:
         mf.writeFile(outf)
+      except:
+        print('Error writing midi: ', sys.exc_info()[0])
+        raise SystemExit
 
 
 def play_midi(score):
@@ -69,6 +75,7 @@ def play_midi(score):
         pygame.mixer.music.stop()
         sys.exit()
     except:
+        print('Error: ', sys.exc_info()[0])
         pygame.mixer.music.fadeout(1000)
         pygame.mixer.music.stop()
         raise SystemExit
