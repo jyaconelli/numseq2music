@@ -8,7 +8,7 @@ import time
 
 divisor = BEATS_PER_ROW / 16.0
 
-def make_midi(score: Score, filename="output.midi"):
+def make_midi(score: Score, filename="output.midi", for_play=False):
     name = score.name
     tempo = score.tempo
     
@@ -60,7 +60,7 @@ def play_midi(score):
     try:
         freq = 44100
         bitsize = -16
-        channels = 1
+        channels = 2
         buffer = 1024
         pygame.mixer.init(freq, bitsize, channels, buffer)
         pygame.mixer.music.set_volume(0.8)
@@ -73,12 +73,10 @@ def play_midi(score):
             clock.tick(30)
         time.sleep(1)
         pygame.mixer.music.stop()
-        sys.exit()
     except:
         print('Error: ', sys.exc_info()[0])
         pygame.mixer.music.fadeout(1000)
         pygame.mixer.music.stop()
         raise SystemExit
-    raise SystemExit
 
 
